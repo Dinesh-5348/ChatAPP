@@ -2,7 +2,10 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ChatApp To-do",
+  title: {
+    default: "TO-DO-APP",
+    template: "%s | TO-DO-APP",
+  },
   description: "Todo app built with Next.js and Prisma",
 };
 
