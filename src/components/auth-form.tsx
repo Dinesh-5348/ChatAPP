@@ -18,41 +18,46 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     setPending(true);
     setError("");
 
-    const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email") ?? "");
-    const password = String(formData.get("password") ?? "");
+    try {
+      const formData = new FormData(event.currentTarget);
+      const email = String(formData.get("email") ?? "");
+      const password = String(formData.get("password") ?? "");
 
-    if (isRegister) {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: String(formData.get("name") ?? ""),
-          email,
-          password,
-        }),
+      if (isRegister) {
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: String(formData.get("name") ?? ""),
+            email,
+            password,
+          }),
+        });
+        if (!response.ok) {
+          const body = (await response.json()) as { error?: string };
+          setError(body.error ?? "Registration failed.");
+          return;
+        }
+      }
+
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
       });
-      if (!response.ok) {
-        const body = (await response.json()) as { error?: string };
-        setError(body.error ?? "Registration failed.");
-        setPending(false);
+      if (result?.error) {
+        setError("Email or password is incorrect, or the database is unavailable.");
         return;
       }
-    }
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-    if (result?.error) {
-      setError("Email or password is incorrect.");
+      router.push("/app");
+      router.refresh();
+    } catch (submitError) {
+      console.error(submitError);
+      setError("The server could not be reached. Check the database connection and try again.");
+    } finally {
       setPending(false);
-      return;
     }
-
-    router.push("/app");
-    router.refresh();
   }
 
   return (
