@@ -7,10 +7,8 @@ export default async function AppPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const [lists, tasks] = await Promise.all([
-    getLists(session.user.id),
-    getTasks(session.user.id, {}),
-  ]);
+  const lists = await getLists(session.user.id);
+  const tasks = await getTasks(session.user.id, {});
 
   return (
     <main className="app-shell">
