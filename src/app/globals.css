@@ -91,9 +91,17 @@ h2 { margin-bottom: 8px; }
 .new-list-form button { padding: 8px 13px; }
 .task-heading { padding-bottom: 20px; border-bottom: 1px solid #e4e0d7; }
 .task-heading h2 { margin: 0; font-size: 2rem; }
-.task-filters { display: grid; grid-template-columns: minmax(0, 1fr) 150px 150px; gap: 8px; margin-top: 16px; }
+.task-search-panel { margin-top: 16px; padding: 16px; border: 1px solid #e1ddd3; background: #f8f6f0; }
+.control-label-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.control-label { color: #315c4b; font: 700 0.78rem Arial, sans-serif; letter-spacing: 0.04em; text-transform: uppercase; }
+.control-hint, .clear-filters { color: #6c766f; font: 0.75rem Arial, sans-serif; }
+.clear-filters { padding: 0; border: 0; background: transparent; text-decoration: underline; }
+.task-filters { display: grid; grid-template-columns: minmax(0, 1fr) 150px 150px; gap: 8px; }
 .task-filters input, .task-filters select { min-width: 0; border: 1px solid #c9c8bf; background: #fff; padding: 10px 12px; color: #1e2924; }
-.task-composer { margin: 20px 0 12px; }
+.task-create-panel { margin: 14px 0 12px; padding: 16px; border: 1px solid #b9d0c3; background: #edf5ef; }
+.task-composer { display: flex; gap: 8px; }
+.task-composer input { min-width: 0; flex: 1; border: 1px solid #aebfb3; background: #fff; padding: 11px 12px; color: #1e2924; }
+.task-composer input[type="date"] { flex: 0 0 145px; }
 .empty-state { display: grid; gap: 8px; margin-top: 28px; padding: 28px; background: #f4f1ea; color: #6c766f; }
 .task-list { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 8px; }
 .task-row { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 13px 0; border-bottom: 1px solid #eeeae1; }
@@ -114,6 +122,7 @@ h2 { margin-bottom: 8px; }
   .sidebar-panel { order: 2; }
   .task-panel { order: 1; }
   .task-composer { align-items: stretch; flex-direction: column; }
+  .task-composer input[type="date"] { flex-basis: auto; }
   .task-filters { grid-template-columns: 1fr; }
 }
 

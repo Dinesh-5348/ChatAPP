@@ -22,21 +22,22 @@ export function TaskDashboard({ initialLists, initialTasks }: { initialLists: Li
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const selectedListId = searchParams.get("listId") ?? initialLists[0]?.id ?? "";
+  const query = searchParams.get("q") ?? "";
+  const statusFilter = searchParams.get("status") ?? "all";
+  const dueFilter = searchParams.get("due") ?? "all";
   const [lists, setLists] = useState(initialLists);
   const [tasks, setTasks] = useState(initialTasks);
   const [taskCounts, setTaskCounts] = useState(
     () => Object.fromEntries(initialLists.map((list) => [list.id, list._count?.tasks ?? 0])),
   );
   const [taskTitle, setTaskTitle] = useState("");
+  const [searchInput, setSearchInput] = useState(query);
   const [dueDate, setDueDate] = useState("");
   const [listName, setListName] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
 
-  const selectedListId = searchParams.get("listId") ?? initialLists[0]?.id ?? "";
-  const query = searchParams.get("q") ?? "";
-  const statusFilter = searchParams.get("status") ?? "all";
-  const dueFilter = searchParams.get("due") ?? "all";
   const selectedList = lists.find((list) => list.id === selectedListId);
   const visibleTasks = tasks.filter((task) => {
     const matchesList = task.listId === selectedListId;
@@ -48,6 +49,9 @@ export function TaskDashboard({ initialLists, initialTasks }: { initialLists: Li
   });
 
   function updateFilters(changes: Record<string, string>) {
+    if (Object.prototype.hasOwnProperty.call(changes, "q")) {
+      setSearchInput(changes.q);
+    }
     const nextParams = new URLSearchParams(searchParams.toString());
     Object.entries(changes).forEach(([key, value]) => {
       if (!value || value === "all") nextParams.delete(key);
@@ -157,24 +161,40 @@ export function TaskDashboard({ initialLists, initialTasks }: { initialLists: Li
           </div>
           <span className="status-pill">{visibleTasks.length} shown</span>
         </div>
-        <div className="task-filters" aria-label="Task filters">
-          <input value={query} onChange={(event) => updateFilters({ q: event.target.value })} placeholder="Search tasks" aria-label="Search tasks" />
-          <select value={statusFilter} onChange={(event) => updateFilters({ status: event.target.value })} aria-label="Filter by status">
-            <option value="all">All statuses</option>
-            <option value="todo">To do</option>
-            <option value="doing">Doing</option>
-            <option value="done">Done</option>
-          </select>
-          <select value={dueFilter} onChange={(event) => updateFilters({ due: event.target.value })} aria-label="Filter by due date">
-            <option value="all">Any due date</option>
-            <option value="overdue">Overdue</option>
-          </select>
+        <div className="task-search-panel" aria-label="Search and filter tasks">
+          <div className="control-label-row">
+            <span className="control-label">Find tasks</span>
+            {query || statusFilter !== "all" || dueFilter !== "all" ? (
+              <button className="clear-filters" type="button" onClick={() => updateFilters({ q: "", status: "all", due: "all" })}>
+                Clear filters
+              </button>
+            ) : null}
+          </div>
+          <div className="task-filters">
+            <input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); updateFilters({ q: searchInput }); } }} placeholder="Search by task name" aria-label="Search tasks" />
+            <select value={statusFilter} onChange={(event) => updateFilters({ status: event.target.value })} aria-label="Filter by status">
+              <option value="all">All statuses</option>
+              <option value="todo">To do</option>
+              <option value="doing">Doing</option>
+              <option value="done">Done</option>
+            </select>
+            <select value={dueFilter} onChange={(event) => updateFilters({ due: event.target.value })} aria-label="Filter by due date">
+              <option value="all">Any due date</option>
+              <option value="overdue">Overdue</option>
+            </select>
+          </div>
         </div>
-        <form className="task-composer" onSubmit={addTask}>
-          <input value={taskTitle} onChange={(event) => setTaskTitle(event.target.value)} placeholder="What needs doing?" aria-label="Task title" />
-          <input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} aria-label="Due date" />
-          <button type="submit" disabled={pending || !selectedListId}>Add task</button>
-        </form>
+        <section className="task-create-panel" aria-label="Create a new task">
+          <div className="control-label-row">
+            <span className="control-label">Add a task</span>
+            <span className="control-hint">Press Enter to save</span>
+          </div>
+          <form className="task-composer" onSubmit={addTask}>
+            <input value={taskTitle} onChange={(event) => setTaskTitle(event.target.value)} placeholder="What needs doing?" aria-label="Task title" />
+            <input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} aria-label="Due date" />
+            <button type="submit" disabled={pending || !selectedListId}>Add task</button>
+          </form>
+        </section>
         {error ? <p className="form-error">{error}</p> : null}
         {visibleTasks.length === 0 ? (
           <div className="empty-state">
